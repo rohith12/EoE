@@ -15,9 +15,9 @@ class AboutViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tableArray = ["Version","Developers","Contact","Summary","Acknowledgements"]
+        tableArray = ["Version","Developers"]
         
-subTableArray = ["1.0","Rohith Raju,Sagar Thakur","Shoot a mail","Who needs this app?",""]
+        subTableArray = ["1.0","Rohith Raju,Sagar Thakur"]
         // Do any additional setup after loading the view.
     }
 
@@ -27,12 +27,12 @@ subTableArray = ["1.0","Rohith Raju,Sagar Thakur","Shoot a mail","Who needs this
     }
     
     
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return tableArray.count
     }
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath)
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         
         cell.textLabel?.text = tableArray[indexPath.row]
         cell.detailTextLabel?.text = subTableArray[indexPath.row]

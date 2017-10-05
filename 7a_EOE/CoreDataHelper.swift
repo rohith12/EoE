@@ -10,11 +10,11 @@ import UIKit
 import CoreData
 @objc protocol CoreDataHelperDelegate {
     
-    optional func successForInserfoodCore(success:String)
-    optional func FailureForinsertFoodCore(error:String)
+    @objc optional func successForInserfoodCore(_ success:String)
+    @objc optional func FailureForinsertFoodCore(_ error:String)
     
-    optional func successForRetfoodCore(success:NSArray)
-    optional func FailureForRetFoodCore(error:String)
+    @objc optional func successForRetfoodCore(_ success:NSArray)
+    @objc optional func FailureForRetFoodCore(_ error:String)
 }
 
 
@@ -22,46 +22,56 @@ class CoreDataHelper: NSObject {
     var delegate: CoreDataHelperDelegate?
 
     
-    func insertFoodItems(food:NSArray){
+    func insertFoodItems(_ food:NSArray){
         
-        let ArrayOfData = food[0] as! NSDictionary
         
-        let appDel: AppDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-        let managedObjectContext = appDel.managedObjectContext
+      
         
-        let entity = NSEntityDescription.insertNewObjectForEntityForName("Food", inManagedObjectContext: managedObjectContext)
         
-        let diaryID = ArrayOfData.valueForKey("diaryID")?.intValue
-        let patientID = ArrayOfData.valueForKey("patientID")?.intValue
+     
 
 
-//
-//        
-        entity.setValue(NSNumber(int: diaryID!), forKey: "diaryID")
-        entity.setValue(NSNumber(int: patientID!), forKey: "patientID")
-
-        entity.setValue(ArrayOfData.valueForKey("feelAfter"), forKey: "feelAfter")
-        entity.setValue(ArrayOfData.valueForKey("feelBefore"), forKey: "feelBefore")
-        entity.setValue(ArrayOfData.valueForKey("image"), forKey: "image")
-        entity.setValue(ArrayOfData.valueForKey("inputPerson"), forKey: "inputPerson")
-        entity.setValue(ArrayOfData.valueForKey("location"), forKey: "location")
-        entity.setValue(ArrayOfData.valueForKey("meal"), forKey: "meal")
-        entity.setValue(ArrayOfData.valueForKey("others"), forKey: "others")
-        entity.setValue(ArrayOfData.valueForKey("partner"), forKey: "partner")
-        entity.setValue(ArrayOfData.valueForKey("someone"), forKey: "someone")
-        entity.setValue(ArrayOfData.valueForKey("time"), forKey: "time")
-        entity.setValue(ArrayOfData.valueForKey("worry"), forKey: "worry")
+     //   let ArrayOfData = food[0] as! NSDictionary
         
-        do {
+        for ArrayOfData in food {
             
-            try managedObjectContext.save()
-            self.delegate?.successForInserfoodCore!("done")
+            let appDel: AppDelegate = UIApplication.shared.delegate as! AppDelegate
+            let managedObjectContext = appDel.managedObjectContext
             
-        } catch {
-            self.delegate?.FailureForinsertFoodCore!("error")
-            print("There was a problem!")
+            let entity = NSEntityDescription.insertNewObject(forEntityName: "Food", into: managedObjectContext)
+            let diaryID = ((ArrayOfData as AnyObject).value(forKey: "diaryID") as AnyObject).int32Value
+            let patientID = ((ArrayOfData as AnyObject).value(forKey: "patientID") as AnyObject).int32Value
             
+            entity.setValue(NSNumber(value: diaryID! as Int32), forKey: "diaryID")
+            entity.setValue(NSNumber(value: patientID! as Int32), forKey: "patientID")
+            
+            entity.setValue((ArrayOfData as AnyObject).value(forKey: "feelAfter"), forKey: "feelAfter")
+            entity.setValue((ArrayOfData as AnyObject).value(forKey: "feelBefore"), forKey: "feelBefore")
+            entity.setValue((ArrayOfData as AnyObject).value(forKey: "image"), forKey: "image")
+            entity.setValue((ArrayOfData as AnyObject).value(forKey: "inputPerson"), forKey: "inputPerson")
+            entity.setValue((ArrayOfData as AnyObject).value(forKey: "location"), forKey: "location")
+            entity.setValue((ArrayOfData as AnyObject).value(forKey: "meal"), forKey: "meal")
+            entity.setValue((ArrayOfData as AnyObject).value(forKey: "others"), forKey: "others")
+            entity.setValue((ArrayOfData as AnyObject).value(forKey: "partner"), forKey: "partner")
+            entity.setValue((ArrayOfData as AnyObject).value(forKey: "someone"), forKey: "someone")
+            entity.setValue((ArrayOfData as AnyObject).value(forKey: "time"), forKey: "time")
+            entity.setValue((ArrayOfData as AnyObject).value(forKey: "worry"), forKey: "worry")
+            
+            do {
+                
+                try managedObjectContext.save()
+                
+            } catch {
+                self.delegate?.FailureForinsertFoodCore!("error")
+                print("There was a problem!")
+                
+            }
         }
+        
+        
+        self.delegate?.successForInserfoodCore!("done")
+
+       
     
     }
     
@@ -70,17 +80,17 @@ class CoreDataHelper: NSObject {
     func retriveFood(){
         
         
-        let appDel: AppDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        let appDel: AppDelegate = UIApplication.shared.delegate as! AppDelegate
         
         let managedObjectContext = appDel.managedObjectContext
-        let fetchRequest = NSFetchRequest()
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>()
         
         // Create Entity Description
-        let entityDescription = NSEntityDescription.entityForName("Food", inManagedObjectContext: managedObjectContext)
+        let entityDescription = NSEntityDescription.entity(forEntityName: "Food", in: managedObjectContext)
         // Configure Fetch Request
         fetchRequest.entity = entityDescription
         do {
-            let result = try managedObjectContext.executeFetchRequest(fetchRequest)
+            let result = try managedObjectContext.fetch(fetchRequest)
             var foodArray = [FoodModel]()
 
             //  var arrayAid = [Int]()
@@ -89,22 +99,25 @@ class CoreDataHelper: NSObject {
                 for res in result as! [NSManagedObject] {
                     
                     let food = FoodModel()
-                    food.afterSymptom = "\(res.valueForKey("feelBefore")!)"
-                    food.beforeSymptom = "\(res.valueForKey("feelAfter")!)"
-                    food.worry = "\(res.valueForKey("worry")!)"
-                    food.companyToEat = "\(res.valueForKey("partner")!)"
-                    food.placeYouAte = "\(res.valueForKey("location")!)"
-                    food.mealType = "\(res.valueForKey("meal")!)"
-                    food.foodImg = "https://people.cs.clemson.edu/~rraju/eoeScripts/eoeImgs/\(res.valueForKey("image")!)"
+                    food.afterSymptom = "\(res.value(forKey: "feelBefore")!)"
+                    food.beforeSymptom = "\(res.value(forKey: "feelAfter")!)"
+                    food.worry = "\(res.value(forKey: "worry")!)"
+                    food.companyToEat = "\(res.value(forKey: "partner")!)"
+                    food.placeYouAte = "\(res.value(forKey: "location")!)"
+                    food.mealType = "\(res.value(forKey: "meal")!)"
+                    food.foodImg = "\(res.value(forKey: "image")!)"
                     //print("\(food.foodImg)")
                     
                     foodArray.append(food)
 
                 }
                 
-                self.delegate?.successForRetfoodCore!(foodArray)
+                self.delegate?.successForRetfoodCore!(foodArray as NSArray)
                 
                // print("leagueDictionary:\(LeagueDictionary),\(LeagueDictionary[1])")
+            }else{
+                self.delegate?.FailureForRetFoodCore!("")
+
             }
         }
         catch {
@@ -115,6 +128,24 @@ class CoreDataHelper: NSObject {
         
     }
     
-    
+    func deleteAllData(_ entity: String)
+    {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let managedContext = appDelegate.managedObjectContext
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entity)
+        fetchRequest.returnsObjectsAsFaults = false
+        
+        do
+        {
+            let results = try managedContext.fetch(fetchRequest)
+            for managedObject in results
+            {
+                let managedObjectData:NSManagedObject = managedObject as! NSManagedObject
+                managedContext.delete(managedObjectData)
+            }
+        } catch let error as NSError {
+            print("Detele all data in \(entity) error : \(error) \(error.userInfo)")
+        }
+    }
     
 }

@@ -8,6 +8,8 @@ import UIKit
 
 class RegisterViewController: UIViewController,UITextFieldDelegate,UIPickerViewDelegate,UIPickerViewDataSource,PortalServiceDelegate {
 
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var viewForActivityIndicator: UIView!
     @IBOutlet weak var householdBtn: UIButton!
     @IBOutlet weak var motherBtn: UIButton!
     @IBOutlet weak var fatherBtn: UIButton!
@@ -30,7 +32,8 @@ class RegisterViewController: UIViewController,UITextFieldDelegate,UIPickerViewD
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var frontView: UIView!
     
-    
+    var coreData = CoreDataHelper()
+
     var genderArray = [String]()
     var raceArray = [String]()
     var gradeArray = [String]()
@@ -51,10 +54,17 @@ class RegisterViewController: UIViewController,UITextFieldDelegate,UIPickerViewD
         raceArray = ["White","Black or African American","Asian","Pacific Islander","Other"]
         gradeArray = ["Pre-school","Kindergarten","1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th"]
         hispanic = ["Yes","No"]
-        EducationArray = ["Less than 9th grade","9-12th no diploma","High school graduate(or GED/equilavent)","Associate's Degree or Vocational training","Some college(No degree)","Bachelor's degree","Graduate or professional degree"]
-        incomeArray = ["Less than $10,000","$10,000 to $14,999","$15,000 to $24,999","$25,000 to $34,999,","$35,000 to $49,999","$75,000 to $99,999","100,000 or more"]
+        EducationArray = ["Less than 9th grade","9-12th no diploma","High school graduate(or GED/equilavent)","Associate Degree or Vocational training","Some college(No degree)","Bachelor degree","Graduate or professional degree"]
+        
+        
+        incomeArray = ["Less than $10,000","$10,000 to $14,999","$15,000 to $24,999","$25,000 to $34,999","$35,000 to $49,999","$75,000 to $99,999","100,000 or more"]
         EoEArray = ["Less than a year","1-5 years","More than 5 years"]
         
+        self.datePicker.backgroundColor = UIColor.gray
+          self.customPicker.backgroundColor = UIColor.gray
+        hideUnhideActivity(true)
+        
+       // NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector(showDatePicker()), name: UIKeyboardDidHideNotification, object: nil)
         
     }
 
@@ -64,14 +74,19 @@ class RegisterViewController: UIViewController,UITextFieldDelegate,UIPickerViewD
     }
     
     
-    @IBAction func Confirm(sender: AnyObject) {
+    @IBAction func Confirm(_ sender: AnyObject) {
         
+        let emailTxtWoWhite = emailTxt.text!.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        let passTxtWoWhite = passwordTxt.text!.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+     //   let nameTxtWoWhite = nameTxt.text!.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
         
-         if nameTxt.text?.characters.count>0 && passwordTxt.text?.characters.count>0 && emailTxt.text?.characters.count>0 {
+         if emailTxtWoWhite.characters.count>0 && passTxtWoWhite.characters.count>0 && nameTxt.text!.characters.count>0 {
          
         service.delegate = self
         service.insertUserNameAndPassword(nameTxt.text!, password: passwordTxt.text!, email: emailTxt.text!, DOB: (DobBtn.titleLabel?.text)!, gender: (genderBtn.titleLabel?.text)!, race: (raceBtn.titleLabel?.text)!, hispanic: (hispanicBtn.titleLabel?.text)!, grade: (gradebtn.titleLabel?.text)!, eoe: (EOEBtn.titleLabel?.text)!
             , father: (fatherBtn.titleLabel?.text)!, mother: (motherBtn.titleLabel?.text)!, income: (householdBtn.titleLabel?.text)!)
+            
+            hideUnhideActivity(false)
          }else{
             
            alertViewFunc("Please fill all the fields")
@@ -79,62 +94,103 @@ class RegisterViewController: UIViewController,UITextFieldDelegate,UIPickerViewD
     }
     
     
-    @IBAction func DOBbtn(sender: AnyObject) {
-        
+    
+    
+    @IBAction func tap(_ sender: AnyObject) {
+        resign()
+    }
+    @IBAction func DOBbtn(_ sender: AnyObject) {
+    
         showDatePicker()
-        
     }
     
     
     func showDatePicker(){
-      
-    self.scrollView.frame = CGRectMake(0, self.scrollView.frame.origin.y, self.scrollView.frame.size.width, self.scrollView.frame.size.height-260);
-        self.frontView.userInteractionEnabled = false
-        self.datePicker.hidden = false
-        self.dateToolbar.hidden = false
+     // resign()
+
+    
+       UIView.animate(withDuration: 0, animations: { 
+                    self.emailTxt.resignFirstResponder()
+            self.passwordTxt.resignFirstResponder()
+                    self.nameTxt.resignFirstResponder()
+        }, completion: { (Bool) in
+            
+            self.frontView.isUserInteractionEnabled = false
+            self.datePicker.isHidden = false
+            self.dateToolbar.isHidden = false
+            self.scrollView.frame = CGRect(x: 0, y: self.scrollView.frame.origin.y, width: self.scrollView.frame.size.width, height: self.scrollView.frame.size.height-260);
+        }) 
+            
+                      
+
+           
+//            self.emailTxt.resignFirstResponder()
+//            self.passwordTxt.resignFirstResponder()
+//            self.nameTxt.resignFirstResponder()
+//            
         
+        
+      
+       
+
+        
+        
+    }
+    
+    func resign(){
+       
+        //showDatePicker()
+
     }
     
     func hideDatePicker(){
         
-        self.scrollView.frame=CGRectMake(0, self.scrollView.frame.origin.y, self.scrollView.frame.size.width, self.scrollView.frame.size.height+260);
-        self.scrollView.contentSize=CGSizeMake(self.view.frame.size.width,1000);
-        self.frontView.userInteractionEnabled = true
-        self.datePicker.hidden = true
-        self.dateToolbar.hidden = true
+        self.scrollView.frame=CGRect(x: 0, y: self.scrollView.frame.origin.y, width: self.scrollView.frame.size.width, height: self.scrollView.frame.size.height+260);
+        self.scrollView.contentSize=CGSize(width: self.view.frame.size.width,height: 1000);
+        self.frontView.isUserInteractionEnabled = true
+        self.datePicker.isHidden = true
+        self.dateToolbar.isHidden = true
         
     }
     
+   
     
     func showCustomPicker(){
         
-        self.scrollView.frame = CGRectMake(0, self.scrollView.frame.origin.y, self.scrollView.frame.size.width, self.scrollView.frame.size.height-260);
-        self.frontView.userInteractionEnabled = false
-        self.customPicker.hidden = false
-        self.customToolbar.hidden = false
-        
+      
+        UIView.animate(withDuration: 0, animations: {
+            self.emailTxt.resignFirstResponder()
+            self.passwordTxt.resignFirstResponder()
+            self.nameTxt.resignFirstResponder()
+        }, completion: { (Bool) in
+            
+            self.scrollView.frame = CGRect(x: 0, y: self.scrollView.frame.origin.y, width: self.scrollView.frame.size.width, height: self.scrollView.frame.size.height-260);
+            self.frontView.isUserInteractionEnabled = false
+            self.customPicker.isHidden = false
+            self.customToolbar.isHidden = false
+        }) 
     }
     
     func hideCustomPicker(){
         
-        self.scrollView.frame=CGRectMake(0, self.scrollView.frame.origin.y, self.scrollView.frame.size.width, self.scrollView.frame.size.height+260);
-        self.scrollView.contentSize=CGSizeMake(self.view.frame.size.width,1000);
-        self.frontView.userInteractionEnabled = true
-        self.customPicker.hidden = true
-        self.customToolbar.hidden = true
+        self.scrollView.frame=CGRect(x: 0, y: self.scrollView.frame.origin.y, width: self.scrollView.frame.size.width, height: self.scrollView.frame.size.height+260);
+        self.scrollView.contentSize=CGSize(width: self.view.frame.size.width,height: 1000);
+        self.frontView.isUserInteractionEnabled = true
+        self.customPicker.isHidden = true
+        self.customToolbar.isHidden = true
         
     }
     
     
     
-    @IBAction func gender(sender: AnyObject) {
+    @IBAction func gender(_ sender: AnyObject) {
         
         decideArray = 10
         showCustomPicker()
         customPicker.reloadAllComponents()
     }
     
-    @IBAction func raceBtn(sender: AnyObject) {
+    @IBAction func raceBtn(_ sender: AnyObject) {
         decideArray = 20
         showCustomPicker()
         customPicker.reloadAllComponents()
@@ -142,7 +198,7 @@ class RegisterViewController: UIViewController,UITextFieldDelegate,UIPickerViewD
         
     }
 
-    @IBAction func hispanicBtn(sender: AnyObject) {
+    @IBAction func hispanicBtn(_ sender: AnyObject) {
         decideArray = 30
         showCustomPicker()
         customPicker.reloadAllComponents()
@@ -152,7 +208,7 @@ class RegisterViewController: UIViewController,UITextFieldDelegate,UIPickerViewD
     
     
     
-     @IBAction func gradeBtn(sender: AnyObject) {
+     @IBAction func gradeBtn(_ sender: AnyObject) {
         
         decideArray = 40
         showCustomPicker()
@@ -161,7 +217,7 @@ class RegisterViewController: UIViewController,UITextFieldDelegate,UIPickerViewD
      }
     
     
-    @IBAction func eoe(sender: AnyObject) {
+    @IBAction func eoe(_ sender: AnyObject) {
         decideArray = 50
 
         showCustomPicker()
@@ -170,7 +226,7 @@ class RegisterViewController: UIViewController,UITextFieldDelegate,UIPickerViewD
     }
     
     
-    @IBAction func fatherBtn(sender: AnyObject) {
+    @IBAction func fatherBtn(_ sender: AnyObject) {
         
         decideArray = 60
         showCustomPicker()
@@ -178,7 +234,7 @@ class RegisterViewController: UIViewController,UITextFieldDelegate,UIPickerViewD
 
     }
     
-    @IBAction func motherBtn(sender: AnyObject) {
+    @IBAction func motherBtn(_ sender: AnyObject) {
         decideArray = 70
         showCustomPicker()
         customPicker.reloadAllComponents()
@@ -186,7 +242,7 @@ class RegisterViewController: UIViewController,UITextFieldDelegate,UIPickerViewD
         
     }
     
-    @IBAction func houseHoldBtn(sender: AnyObject) {
+    @IBAction func houseHoldBtn(_ sender: AnyObject) {
         decideArray = 80
         showCustomPicker()
         customPicker.reloadAllComponents()
@@ -196,23 +252,23 @@ class RegisterViewController: UIViewController,UITextFieldDelegate,UIPickerViewD
     
     //MARK : Done
     
-    @IBAction func dateDone(sender: AnyObject) {
+    @IBAction func dateDone(_ sender: AnyObject) {
         
         hideDatePicker()
         
         let date = self.datePicker.date
-        let dateFormatter = NSDateFormatter()
+        let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
-        let dateString = dateFormatter.stringFromDate(date)
+        let dateString = dateFormatter.string(from: date)
         
         DobBtn.setTitle(dateString
-            , forState: .Normal)
-        DobBtn.setTitleColor(UIColor.blackColor(), forState: .Normal)
+            , for: UIControlState())
+        DobBtn.setTitleColor(UIColor.black, for: UIControlState())
  
         
     }
     
-    @IBAction func CustomDone(sender: AnyObject) {
+    @IBAction func CustomDone(_ sender: AnyObject) {
         hideCustomPicker()
         setTitleForButton(decideArray)
         
@@ -220,7 +276,7 @@ class RegisterViewController: UIViewController,UITextFieldDelegate,UIPickerViewD
     
     //MARK: Picker delegates
     
-    func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         
        let arrayPicker  = decideArray(decideArray)
         
@@ -228,19 +284,19 @@ class RegisterViewController: UIViewController,UITextFieldDelegate,UIPickerViewD
         return arrayPicker.count
     }
     
-    func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         
         let arrayPicker  = decideArray(decideArray)
         return arrayPicker[row]
         
     }
     
-    func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
     
     
-    func decideArray(decide: Int)-> [String]{
+    func decideArray(_ decide: Int)-> [String]{
        
         var tempArray = [String]()
         
@@ -280,41 +336,41 @@ class RegisterViewController: UIViewController,UITextFieldDelegate,UIPickerViewD
     }
     
     
-    func setTitleForButton(decide:Int){
+    func setTitleForButton(_ decide:Int){
         switch decide {
         case 10:
-            genderBtn.setTitle(genderArray[customPicker.selectedRowInComponent(0)], forState: .Normal)
-            genderBtn.setTitleColor(UIColor.blackColor(), forState: .Normal)
+            genderBtn.setTitle(genderArray[customPicker.selectedRow(inComponent: 0)], for: UIControlState())
+            genderBtn.setTitleColor(UIColor.black, for: UIControlState())
             break
         case 20:
-            raceBtn.setTitle(raceArray[customPicker.selectedRowInComponent(0)], forState: .Normal)
-              raceBtn.setTitleColor(UIColor.blackColor(), forState: .Normal)
+            raceBtn.setTitle(raceArray[customPicker.selectedRow(inComponent: 0)], for: UIControlState())
+              raceBtn.setTitleColor(UIColor.black, for: UIControlState())
             break
         case 30:
-            hispanicBtn.setTitle(hispanic[customPicker.selectedRowInComponent(0)], forState: .Normal)
-              hispanicBtn.setTitleColor(UIColor.blackColor(), forState: .Normal)
+            hispanicBtn.setTitle(hispanic[customPicker.selectedRow(inComponent: 0)], for: UIControlState())
+              hispanicBtn.setTitleColor(UIColor.black, for: UIControlState())
             break
         case 40:
-            gradebtn.setTitle(gradeArray[customPicker.selectedRowInComponent(0)], forState: .Normal)
-              gradebtn.setTitleColor(UIColor.blackColor(), forState: .Normal)
+            gradebtn.setTitle(gradeArray[customPicker.selectedRow(inComponent: 0)], for: UIControlState())
+              gradebtn.setTitleColor(UIColor.black, for: UIControlState())
             break
         case 50:
-            EOEBtn.setTitle(EoEArray[customPicker.selectedRowInComponent(0)], forState: .Normal)
-              EOEBtn.setTitleColor(UIColor.blackColor(), forState: .Normal)
+            EOEBtn.setTitle(EoEArray[customPicker.selectedRow(inComponent: 0)], for: UIControlState())
+              EOEBtn.setTitleColor(UIColor.black, for: UIControlState())
             break
         case 60:
-            fatherBtn.setTitle(EducationArray[customPicker.selectedRowInComponent(0)], forState: .Normal)
-              fatherBtn.setTitleColor(UIColor.blackColor(), forState: .Normal)
+            fatherBtn.setTitle(EducationArray[customPicker.selectedRow(inComponent: 0)], for: UIControlState())
+              fatherBtn.setTitleColor(UIColor.black, for: UIControlState())
             break
         case 70:
             
-            motherBtn.setTitle(EducationArray[customPicker.selectedRowInComponent(0)], forState: .Normal)
-              motherBtn.setTitleColor(UIColor.blackColor(), forState: .Normal)
+            motherBtn.setTitle(EducationArray[customPicker.selectedRow(inComponent: 0)], for: UIControlState())
+              motherBtn.setTitleColor(UIColor.black, for: UIControlState())
             break
         case 80:
             
-        householdBtn.setTitle(incomeArray[customPicker.selectedRowInComponent(0)], forState: .Normal)
-          householdBtn.setTitleColor(UIColor.blackColor(), forState: .Normal)
+        householdBtn.setTitle(incomeArray[customPicker.selectedRow(inComponent: 0)], for: UIControlState())
+          householdBtn.setTitleColor(UIColor.black, for: UIControlState())
             break
             
             
@@ -329,54 +385,110 @@ class RegisterViewController: UIViewController,UITextFieldDelegate,UIPickerViewD
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
     }
     
     //MARK textfield delegates
     
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
     }
+  
     
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.emailTxt.resignFirstResponder()
+        nameTxt.resignFirstResponder()
         passwordTxt.resignFirstResponder()
     }
     
     //MARK: service delegates
     
-    func successForInsertuser(success: String) {
+    func successForInsertuser(_ success: NSDictionary) {
+        
+        coreData.deleteAllData("Food")
+
+        
         print("success:\(success)")
+        
+                let appDomain = Bundle.main.bundleIdentifier!
+                UserDefaults.standard.removePersistentDomain(forName: appDomain)
+                UserDefaults.standard.synchronize()
 
         
+        hideUnhideActivity(true)
+
+        if (success["UserId"] != nil)  {
+            
+            
+            
+            UserDefaults.standard.setValue(success["UserId"], forKey: "UserId")
+            performSegue(withIdentifier: "home", sender: self)
+            
+            
+        }
+        else
+        {
+            service.delegate = self
+            service.insertUserNameAndPassword(nameTxt.text!, password: passwordTxt.text!, email: emailTxt.text!, DOB: (DobBtn.titleLabel?.text)!, gender: (genderBtn.titleLabel?.text)!, race: (raceBtn.titleLabel?.text)!, hispanic: (hispanicBtn.titleLabel?.text)!, grade: (gradebtn.titleLabel?.text)!, eoe: (EOEBtn.titleLabel?.text)!
+                , father: (fatherBtn.titleLabel?.text)!, mother: (motherBtn.titleLabel?.text)!, income: (householdBtn.titleLabel?.text)!)
+            
+            hideUnhideActivity(false)
+        }
         
-        NSUserDefaults.standardUserDefaults().setValue(success, forKey: "UserId")
         
-        
-        performSegueWithIdentifier("home", sender: self)
 
     }
     
-    func FailureForInsertuser(error: String) {
-        alertViewFunc("Please try registering again")
-
+    func FailureForInsertuser(_ error: String) {
+        
+        hideUnhideActivity(true)
+        alertViewFunc("Registration failed")
         print("failed")
+        
+        
     }
     
     
-    func alertViewFunc(msg: String)  {
+    func alertViewFunc(_ msg: String)  {
         
         
-        let alertController = UIAlertController(title: "\(msg)", message: "", preferredStyle: .Alert)
+        let alertController = UIAlertController(title: "\(msg)", message: "", preferredStyle: .alert)
         
-        let defaultAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
+        let defaultAction = UIAlertAction(title: "OK", style: .default, handler: nil)
         alertController.addAction(defaultAction)
         
-        presentViewController(alertController, animated: true, completion: nil)
+        present(alertController, animated: true, completion: nil)
         
     }
+    
+   
+    
+    
+    func hideUnhideActivity(_ bool: Bool){
+        
+        viewForActivityIndicator.isHidden = bool
+        
+        if bool == false {
+            self.view.bringSubview(toFront: self.viewForActivityIndicator)
+            // activityIndicator.center = scrollView.center
+            activityIndicator.startAnimating()
+        }else{
+            
+            self.viewForActivityIndicator.center = self.scrollView.center
+            DispatchQueue.main.async(execute: {
+                self.view.bringSubview(toFront: self.scrollView)
+                self.activityIndicator.stopAnimating()
+                self.viewForActivityIndicator.isHidden = bool
+                // self.viewForActivityIndicator.removeFromSuperview()
+            })
+        }
+    }
 
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        textField.resignFirstResponder()
+    }
 }

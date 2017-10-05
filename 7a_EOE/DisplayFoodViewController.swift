@@ -11,23 +11,53 @@ import SDWebImage
 
 class DisplayFoodViewController: UIViewController,UITableViewDelegate,UITableViewDataSource,PortalServiceDelegate,CoreDataHelperDelegate {
 
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var viewForActivityIndicator: UIView!
     var foodArray = [FoodModel]()
-    var service = PortalService()
     var core = CoreDataHelper()
-
+    var service = PortalService()
     
     @IBOutlet weak var tableview: UITableView!
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        hideUnhideActivity(true)
         // Do any additional setup after loading the view.
     }
     
-    override func viewWillAppear(animated: Bool) {
-//        service.delegate = self
-//        service.getFoodDiary()
+    override func viewWillAppear(_ animated: Bool) {
+        
+       
+        
         core.delegate = self
+
         core.retriveFood()
+
+        hideUnhideActivity(false)
+    }
+    
+    func successForGetFood(_ success: NSArray) {
+        
+        if success.count > 0{
+            core.insertFoodItems(success)
+        }
+        
+        
+    }
+    
+    
+    
+    func successForInserfoodCore(_ success: String) {
+        core.retriveFood()
+
+    }
+    
+    func FailureForinsertFoodCore(_ error: String) {
+        
+    }
+    
+    
+    func FailureForGetFood(_ error: String) {
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -35,85 +65,84 @@ class DisplayFoodViewController: UIViewController,UITableViewDelegate,UITableVie
         // Dispose of any resources that can be recreated.
     }
     
-    @IBAction func add(sender: AnyObject) {
-        performSegueWithIdentifier("add", sender: self)
+    @IBAction func add(_ sender: AnyObject) {
+        performSegue(withIdentifier: "add", sender: self)
     }
     
    
     
-    func successForRetfoodCore(success: NSArray) {
-        foodArray = []
-        foodArray = success as! [FoodModel]
-        self.tableview.reloadData()
-    }
-    
-    func FailureForRetFoodCore(error: String) {
+    func successForRetfoodCore(_ success: NSArray) {
         
+        if success.count < 0 {
+            service.delegate = self
+            service.getFoodDiary()
+        }else{
+            foodArray = []
+            foodArray = success as! [FoodModel]
+            hideUnhideActivity(true)
+            
+            self.tableview.reloadData()
+        }
+       
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func FailureForRetFoodCore(_ error: String) {
+        service.delegate = self
+        service.getFoodDiary()
+        hideUnhideActivity(true)
+
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return foodArray.count
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath) as! TableViewCell
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! TableViewCell
         
         var foodModel = FoodModel()
         
         foodModel = foodArray[indexPath.row]
         
         
-        cell.mealType.text = foodModel.mealType
-        cell.company.text = foodModel.companyToEat
-        cell.placeEat.text = foodModel.placeYouAte
-        cell.beforeSymp.text = foodModel.beforeSymptom
-        cell.afterSymp.text = foodModel.afterSymptom
-        cell.worried.text = foodModel.worry
+        cell.mealType.text = "Meal type: \(foodModel.mealType!)"
+        cell.company.text = "Company: \(foodModel.companyToEat!)"
+        cell.placeEat.text = "Place: \(foodModel.placeYouAte!)"
+        cell.beforeSymp.text = "Before symptom: \(foodModel.beforeSymptom!)"
+        cell.afterSymp.text = "After symptom: \(foodModel.afterSymptom!)"
+        cell.worried.text = "Worried: \(foodModel.worry!)"
         print("foodModelStr:\(foodModel.foodImg!)")
         
-        let url : NSString = foodModel.foodImg!
-        let urlStr : NSString = url.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)!
-        let searchURL : NSURL = NSURL(string: urlStr as String)!
+        let url : NSString = foodModel.foodImg! as NSString
+        let urlStr : NSString = url.addingPercentEscapes(using: String.Encoding.utf8.rawValue)! as NSString
+        let searchURL : URL = URL(string: urlStr as String)!
         print("serach:\(searchURL)")
       
 
-        cell.foodImg?.sd_setImageWithURL(searchURL, placeholderImage:UIImage(named: "Food_vector_icon_restaurant_pixel_perfect"))
+        cell.foodImg?.sd_setImage(with: searchURL, placeholderImage:UIImage(named: "Food_vector_icon_restaurant_pixel_perfect"))
         return cell
     }
     
-    func successForGetFood(success: NSArray) {
-        
-        foodArray = []
 
-        if success.count > 0 {
-            
-            print("count:\(success)")
-            
-            for res in (success  as? [[String:String]])! {
-                
-                let food = FoodModel()
-               food.afterSymptom = "\(res["feelBefore"]!)"
-                food.beforeSymptom = "\(res["feelAfter"]!)"
-               food.worry = "\(res["worry"]!)"
-               food.companyToEat = "\(res["partner"]!)"
-                food.placeYouAte = "\(res["location"]!)"
-                food.mealType = "\(res["meal"]!)"
-                food.foodImg = "https://people.cs.clemson.edu/~rraju/eoeScripts/eoeImgs/\(res["image"]!)"
-                //print("\(food.foodImg)")
-
-                foodArray.append(food)
-            }
-            
-            tableview.reloadData()
-            
-        }
-        
-    }
     
-    func FailureForGetFood(error: String) {
+    func hideUnhideActivity(_ bool: Bool){
         
+        viewForActivityIndicator.isHidden = bool
+        
+        if bool == false {
+           
+            // activityIndicator.center = scrollView.center
+            activityIndicator.startAnimating()
+        }else{
+            
+            DispatchQueue.main.async(execute: {
+                
+                self.activityIndicator.stopAnimating()
+                self.viewForActivityIndicator.isHidden = bool
+                // self.viewForActivityIndicator.removeFromSuperview()
+            })
+        }
     }
-
     /*
     // MARK: - Navigation
 

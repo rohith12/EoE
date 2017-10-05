@@ -10,12 +10,15 @@ class ViewController: UIViewController,PortalServiceDelegate,UITextFieldDelegate
 
     @IBOutlet weak var emailTxt: UITextField!
     
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var viewForActivityIndicator: UIView!
     @IBOutlet weak var passwordTxt: UITextField!
     var service = PortalService()
     
     override func viewDidLoad() {
         
         super.viewDidLoad()
+        
         // Do any additional setup after loading the view, typically from a nib.
     }
 
@@ -24,31 +27,36 @@ class ViewController: UIViewController,PortalServiceDelegate,UITextFieldDelegate
         // Dispose of any resources that can be recreated.
     }
     
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         
         textField.resignFirstResponder()
         return true
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        self.navigationItem.setHidesBackButton(true, animated:true);
 
-    @IBAction func Login(sender: AnyObject) {
+    }
+
+    @IBAction func Login(_ sender: AnyObject) {
 //        
-//        let emailTxtWoWhite = emailTxt.text!.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
-//        let passTxtWoWhite = passwordTxt.text!.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
-//        
-//        if emailTxtWoWhite.characters.count>0 && passTxtWoWhite.characters.count>0{
-//                    service.delegate = self
-//                    service.SelectUserNameAndPassword(emailTxt.text!, password: passwordTxt.text!)
-//            
-//            
-//            
-//            
-//        }else{
-//            alertViewFunc("Please fill all the fields")
+        let emailTxtWoWhite = emailTxt.text!.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        let passTxtWoWhite = passwordTxt.text!.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
 //
-//        }
+        if emailTxtWoWhite.characters.count>0 && passTxtWoWhite.characters.count>0{
+                    service.delegate = self
+                    service.SelectUserNameAndPassword(emailTxt.text!, password: passwordTxt.text!)
+            hideUnhideActivity(false)
+            
+            
+            
+        }else{
+            alertViewFunc("Please fill all the fields")
+
+        }
         
-        service.delegate = self
-        service.SelectUserNameAndPassword(emailTxt.text!, password: passwordTxt.text!)
+//        service.delegate = self
+//        service.SelectUserNameAndPassword(emailTxt.text!, password: passwordTxt.text!)
         
         
      //  performSegueWithIdentifier("home", sender: self)
@@ -61,41 +69,85 @@ class ViewController: UIViewController,PortalServiceDelegate,UITextFieldDelegate
     
     
     
-    @IBAction func Register(sender: AnyObject) {
+    @IBAction func Register(_ sender: AnyObject) {
         
-        performSegueWithIdentifier("register", sender: self)
+        performSegue(withIdentifier: "register", sender: self)
     }
 
     
-    func successForSelectuser(success: NSDictionary) {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.emailTxt.resignFirstResponder()
+        self.passwordTxt.resignFirstResponder()
+    }
+    
+    func successForSelectuser(_ success: NSDictionary) {
         
         print("success:\(success)")
         
+        hideUnhideActivity(true)
+        print("\(UserDefaults.standard.value(forKey: "UserId"))")
+        
+        if UserDefaults.standard.value(forKey: "UserId") != nil{
+           
+            
+        
+            UserDefaults.standard.setValue(success["patientID"], forKey: "UserId")
+
+                performSegue(withIdentifier: "home", sender: self)
+            
+        }else{
+            
+            let appDomain = Bundle.main.bundleIdentifier!
+            UserDefaults.standard.removePersistentDomain(forName: appDomain)
+            UserDefaults.standard.synchronize()
+            
+            UserDefaults.standard.setValue(success["patientID"], forKey: "UserId")
+            performSegue(withIdentifier: "home", sender: self)
+
+        }
         
         
-        NSUserDefaults.standardUserDefaults().setValue(success["patientID"], forKey: "UserId")
-    performSegueWithIdentifier("home", sender: self)
 
     }
     
-    func FailureForSelectuser(error: String) {
+    func FailureForSelectuser(_ error: String) {
         
-      
+        hideUnhideActivity(true)
+
         alertViewFunc("Failed to login")
      //   print("failed)")
         
     }
     
     
-    func alertViewFunc(msg: String)  {
+    func alertViewFunc(_ msg: String)  {
         
         
-        let alertController = UIAlertController(title: "\(msg)", message: "", preferredStyle: .Alert)
+        let alertController = UIAlertController(title: "\(msg)", message: "", preferredStyle: .alert)
         
-        let defaultAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
+        let defaultAction = UIAlertAction(title: "OK", style: .default, handler: nil)
         alertController.addAction(defaultAction)
         
-        presentViewController(alertController, animated: true, completion: nil)
+        present(alertController, animated: true, completion: nil)
+        
+    }
+    
+    
+    func hideUnhideActivity(_ bool: Bool){
+        
+        viewForActivityIndicator.isHidden = bool
+        
+        if bool == false {
+            activityIndicator.startAnimating()
+        }else{
+            
+            DispatchQueue.main.async(execute: {
+                self.activityIndicator.stopAnimating()
+                
+            })
+            
+        }
+        
         
     }
     

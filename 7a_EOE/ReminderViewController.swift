@@ -31,27 +31,105 @@ class ReminderViewController: UIViewController {
     
     @IBOutlet weak var qol: UISwitch!
     
+    @IBOutlet weak var bfHeight: NSLayoutConstraint!
+    @IBOutlet weak var bfView: UIView!
+    
+    
+    @IBOutlet weak var lunchHeight: NSLayoutConstraint!
+    
+    @IBOutlet weak var lunchView: UIView!
+    
+    @IBOutlet weak var dinView: UIView!
+    @IBOutlet weak var dinHeight: NSLayoutConstraint!
+    
+    @IBOutlet weak var sympHeight: NSLayoutConstraint!
+    
+    @IBOutlet weak var sympView: UIView!
+    
+    
+    @IBOutlet weak var qolHeight: NSLayoutConstraint!
+    @IBOutlet weak var qolView: UIView!
+    
     override func viewDidLoad() {
+        
+        hideAllViews()
+
         super.viewDidLoad()
         switches()
-        
-        for notification in UIApplication.sharedApplication().scheduledLocalNotifications!{
+        self.datePicker.backgroundColor = UIColor.lightGray
+        for notification in UIApplication.shared.scheduledLocalNotifications!{
             print("notic:\(notification.userInfo)")
         }
+        
+       // allNotifiaction()
         // Do any additional setup after loading the view.
     }
     
-    func switches(){
+    func DeleteNotifiaction(_ name: String){
         
+        let app:UIApplication = UIApplication.shared
+        for oneEvent in app.scheduledLocalNotifications! {
+            let notification = oneEvent as UILocalNotification
+            let userInfoCurrent = notification.userInfo! as! [String:AnyObject]
+            let dict  = userInfoCurrent.keys.first
+            
+            
+            print("userInfo:\(userInfoCurrent)")
+            
+            if dict  == name {
+                let uid = userInfoCurrent[name]!.int32Value
+
+                if uid  == 1 {
+                    //Cancelling local notification
+                    app.cancelLocalNotification(notification)
+                    break;
+                }else if uid == 2{
+                    app.cancelLocalNotification(notification)
+                    break;
+                    
+                }else if uid == 3{
+                    app.cancelLocalNotification(notification)
+                    break;
+                }else if uid == 4{
+                    app.cancelLocalNotification(notification)
+                    break;
+                }else if uid == 5{
+                    app.cancelLocalNotification(notification)
+                    break;
+                }
+
+            }
+            
+                        print("userInfo:\(oneEvent)")
+           
+        }
+    }
     
-        if NSUserDefaults.standardUserDefaults().valueForKey("Bf") != nil
+    func switches(){
+      //edit
+    
+        if UserDefaults.standard.value(forKey: "Bf") != nil
         {
-            let bf = "\(NSUserDefaults.standardUserDefaults().valueForKey("Bf")!)"
+            let bf = "\(UserDefaults.standard.value(forKey: "Bf")!)"
 
             if ( bf == "On" && bf.characters.count>0) {
+                
                 breakFast.setOn(true, animated: false)
                 
+                
+                bfHeight.constant = 101.0
+                bfView.isHidden = false
+                if UserDefaults.standard.value(forKey: "BfDate") != nil
+                {
+                    bfOut.setTitle("\(UserDefaults.standard.value(forKey: "BfDate")!)", for: UIControlState())
+                    
+                }
+                
+
             }else{
+                
+                //NSUserDefaults.standardUserDefaults().setValue("Breakfast reminder", forKeyPath: "bfName")
+            
                 breakFast.setOn(false, animated: false)
                 
             }
@@ -63,12 +141,20 @@ class ReminderViewController: UIViewController {
         }
         
         
-        if NSUserDefaults.standardUserDefaults().valueForKey("Lunch") != nil
+        if UserDefaults.standard.value(forKey: "Lunch") != nil
         {
-            let bf = "\(NSUserDefaults.standardUserDefaults().valueForKey("Lunch")!)"
+            let bf = "\(UserDefaults.standard.value(forKey: "Lunch")!)"
             
             if ( bf == "On" && bf.characters.count>0) {
                 lunch.setOn(true, animated: false)
+                
+                lunchHeight.constant = 102.0
+                lunchView.isHidden = false
+                if UserDefaults.standard.value(forKey: "LunDate") != nil
+                {
+                    lunOut.setTitle("\(UserDefaults.standard.value(forKey: "LunDate")!)", for: UIControlState())
+                    
+                }
                 
             }else{
                 lunch.setOn(false, animated: false)
@@ -81,13 +167,19 @@ class ReminderViewController: UIViewController {
             
         }
         
-        if NSUserDefaults.standardUserDefaults().valueForKey("Dinner") != nil
+        if UserDefaults.standard.value(forKey: "Dinner") != nil
         {
-            let Dinner = "\(NSUserDefaults.standardUserDefaults().valueForKey("Dinner")!)"
+            let Dinner = "\(UserDefaults.standard.value(forKey: "Dinner")!)"
             
             if ( Dinner == "On" && Dinner.characters.count>0) {
                 dinner.setOn(true, animated: false)
-                
+                dinHeight.constant = 113.0
+                dinView.isHidden = false
+                if UserDefaults.standard.value(forKey: "DinDate") != nil
+                {
+                    dinOut.setTitle("\(UserDefaults.standard.value(forKey: "DinDate")!)", for: UIControlState())
+                    
+                }
             }else{
                 dinner.setOn(false, animated: false)
                 
@@ -101,13 +193,19 @@ class ReminderViewController: UIViewController {
         
         
         
-        if NSUserDefaults.standardUserDefaults().valueForKey("Symptoms") != nil
+        if UserDefaults.standard.value(forKey: "Symptoms") != nil
         {
-            let Symptoms = "\(NSUserDefaults.standardUserDefaults().valueForKey("Symptoms")!)"
+            let Symptoms = "\(UserDefaults.standard.value(forKey: "Symptoms")!)"
             
             if ( Symptoms == "On" && Symptoms.characters.count>0) {
                 symptoms.setOn(true, animated: false)
-                
+                sympHeight.constant = 97.0
+                sympView.isHidden = false
+                if UserDefaults.standard.value(forKey: "SymDate") != nil
+                {
+                    symOut.setTitle("\(UserDefaults.standard.value(forKey: "SymDate")!)", for: UIControlState())
+                    
+                }
             }else{
                 symptoms.setOn(false, animated: false)
                 
@@ -120,14 +218,22 @@ class ReminderViewController: UIViewController {
         }
        
         
-        if NSUserDefaults.standardUserDefaults().valueForKey("QOL") != nil
+        if UserDefaults.standard.value(forKey: "QOL") != nil
         {
-            let QOL = "\(NSUserDefaults.standardUserDefaults().valueForKey("QOL")!)"
+            let QOL = "\(UserDefaults.standard.value(forKey: "QOL")!)"
             
             if ( QOL == "On" && QOL.characters.count>0) {
                 qol.setOn(true, animated: false)
-                
+                qolHeight.constant = 124.0
+                qolView.isHidden = false
+                if UserDefaults.standard.value(forKey: "QolDate") != nil
+                {
+                    qolOut.setTitle("\(UserDefaults.standard.value(forKey: "QolDate")!)", for: UIControlState())
+                    
+                }
             }else{
+                
+                
                 qol.setOn(false, animated: false)
                 
             }
@@ -148,68 +254,107 @@ class ReminderViewController: UIViewController {
     }
     
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         
         
-        for notification in UIApplication.sharedApplication().scheduledLocalNotifications!{
+        for notification in UIApplication.shared.scheduledLocalNotifications!{
             print("notic:\(notification)")
         }
         
         
     }
     
-    @IBAction func Breakfast(sender: UISwitch) {
+    func hideAllViews(){
+        bfHeight.constant = 0.0
+        bfView.isHidden = true
+        qolHeight.constant = 0.0
+        qolView.isHidden = true
+        bfHeight.constant = 0.0
+        bfView.isHidden = true
+        lunchHeight.constant = 0.0
+        lunchView.isHidden = true
+        sympHeight.constant = 0.0
+        sympView.isHidden = true
+        dinHeight.constant = 0.0
+        dinView.isHidden = true
+    }
+    
+    @IBAction func Breakfast(_ sender: UISwitch) {
         
         
-        if sender.on {
-            NSUserDefaults.standardUserDefaults().setValue("On", forKey: "Bf")
+        if sender.isOn {
+            
+            bfHeight.constant = 101.0
+            bfView.isHidden = false
+            UserDefaults.standard.setValue("On", forKey: "Bf")
             decidePicker = 1
             showCustomPicker()
+            
+                
+            
             self.datePicker.reloadInputViews()
+            
+            
         }else{
-            NSUserDefaults.standardUserDefaults().setValue("Off", forKey: "Bf")
-
+            
+            bfHeight.constant = 0.0
+            bfView.isHidden = true
+            UserDefaults.standard.setValue("Off", forKey: "Bf")
+            DeleteNotifiaction(UserDefaults.standard.value(forKey: "bfName") as! String)
             
         }
 }
     
-    @IBAction func Lunch(sender: UISwitch) {
-        if sender.on {
-            NSUserDefaults.standardUserDefaults().setValue("On", forKey: "Lunch")
-
+    @IBAction func Lunch(_ sender: UISwitch) {
+        if sender.isOn {
+            UserDefaults.standard.setValue("On", forKey: "Lunch")
+            lunchHeight.constant = 102.0
+            lunchView.isHidden = false
             decidePicker = 2
             showCustomPicker()
             self.datePicker.reloadInputViews()
         }else{
-            NSUserDefaults.standardUserDefaults().setValue("Off", forKey: "Lunch")
- 
+            UserDefaults.standard.setValue("Off", forKey: "Lunch")
+            lunchHeight.constant = 0.0
+            lunchView.isHidden = true
+            DeleteNotifiaction(UserDefaults.standard.value(forKey: "LunName") as! String)
+
         }
   
     }
     
-    @IBAction func Dinner(sender: UISwitch) {
-        if sender.on {
-            NSUserDefaults.standardUserDefaults().setValue("On", forKey: "Dinner")
-
+    @IBAction func Dinner(_ sender: UISwitch) {
+        if sender.isOn {
+            UserDefaults.standard.setValue("On", forKey: "Dinner")
+            dinHeight.constant = 113.0
+            dinView.isHidden = false
             decidePicker = 3
             showCustomPicker()
             self.datePicker.reloadInputViews()
         }else{
-            NSUserDefaults.standardUserDefaults().setValue("Off", forKey: "Dinner")
+            dinHeight.constant = 0.0
+            dinView.isHidden = true
+            DeleteNotifiaction(UserDefaults.standard.value(forKey: "DinName") as! String)
+
+            UserDefaults.standard.setValue("Off", forKey: "Dinner")
 
         }
     
     }
 
-    @IBAction func Symptoms(sender: UISwitch) {
-        if sender.on {
-            NSUserDefaults.standardUserDefaults().setValue("On", forKey: "Symptoms")
-
+    @IBAction func Symptoms(_ sender: UISwitch) {
+        if sender.isOn {
+            UserDefaults.standard.setValue("On", forKey: "Symptoms")
+            sympHeight.constant = 97.0
+            sympView.isHidden = false
             decidePicker = 4
             showCustomPicker()
             self.datePicker.reloadInputViews()
         }else{
-            NSUserDefaults.standardUserDefaults().setValue("Off", forKey: "Symptoms")
+            UserDefaults.standard.setValue("Off", forKey: "Symptoms")
+            sympHeight.constant = 0.0
+            sympView.isHidden = true
+            DeleteNotifiaction(UserDefaults.standard.value(forKey: "SymName") as! String)
 
         }
        
@@ -217,39 +362,57 @@ class ReminderViewController: UIViewController {
     
     
     
-    @IBAction func reminders(sender: UISwitch) {
+    @IBAction func reminders(_ sender: UISwitch) {
         
         
-        if sender.on {
-            NSUserDefaults.standardUserDefaults().setValue("On", forKey: "QOL")
-
+        if sender.isOn {
+            UserDefaults.standard.setValue("On", forKey: "QOL")
+            qolHeight.constant = 124.0
+            qolView.isHidden = false
             decidePicker = 5
             showCustomPicker()
             self.datePicker.reloadInputViews()
  
         }else{
-            NSUserDefaults.standardUserDefaults().setValue("Off", forKey: "QOL")
- 
+            qolHeight.constant = 0.0
+            qolView.isHidden = true
+            UserDefaults.standard.setValue("Off", forKey: "QOL")
+            DeleteNotifiaction(UserDefaults.standard.value(forKey: "QolName") as! String)
+
         }
 }
     
     
     
-    @IBAction func Done(sender: AnyObject) {
-        
-        
+    @IBAction func Done(_ sender: AnyObject) {
         
         switch decidePicker {
         case 1:
-            scheduleNotification("Breakfast reminder", date: dateFormatter(self.datePicker.date))
+        //    scheduleNotification("Breakfast reminder", date: dateFormatter(self.datePicker.date))
+            UserDefaults.standard.setValue("Breakfast reminder", forKeyPath: "bfName")
+            scheduleNotification("Breakfast reminder", date: self.datePicker.date, num: 1)
             break
-        case 2:scheduleNotification("Lunch reminder", date: dateFormatter(self.datePicker.date))
+        case 2:
+            UserDefaults.standard.setValue("Lunch reminder", forKeyPath: "LunName")
+
+            //scheduleNotification("Lunch reminder", date: dateFormatter(self.datePicker.date))
+        scheduleNotification("Lunch reminder", date: self.datePicker.date, num: 2)
+
             break
-        case 3:scheduleNotification("Dinner reminder", date: dateFormatter(self.datePicker.date))
+        case 3:
+            UserDefaults.standard.setValue("Dinner reminder", forKeyPath: "DinName")
+
+            scheduleNotification("Dinner reminder", date: self.datePicker.date, num: 3)
+            //scheduleNotification("Dinner reminder", date: dateFormatter(self.datePicker.date))
             break
-        case 4:scheduleNotification("Symptoms reminder", date: dateFormatter(self.datePicker.date))
+        case 4:
+            UserDefaults.standard.setValue("Symptoms reminder", forKeyPath: "SymName")
+            scheduleNotificationWeekly("Symptoms reminder", date: self.datePicker.date, num: 4)//scheduleNotificationWeekly("Symptoms reminder", date: dateFormatter(self.datePicker.date))
             break
-        case 5:scheduleNotification("QOL reminder", date: dateFormatter(self.datePicker.date))
+        case 5:
+            UserDefaults.standard.setValue("QOL reminder", forKeyPath: "QolName")
+            scheduleNotificationMonthly("QOL reminder", date: self.datePicker.date, num: 5)//scheduleNotificationWeekly("Symptoms reminder", date: dateFormatter(self.datePicker.date))
+           // scheduleNotificationMonthly("QOL reminder", date: dateFormatter(self.datePicker.date))
             break
         default:
             break
@@ -259,80 +422,156 @@ class ReminderViewController: UIViewController {
      //   UIApplication.sharedApplication().cancelLocalNotification(notification)
 
         hideCustomPicker()
-        setButtonTitle()
+      //  setButtonTitle()
         
         
     }
     
-    func dateFormatter(date: NSDate)-> NSDate{
+    func dateFormatter(_ date: Date)-> String{
         
-        let dateFormatter = NSDateFormatter()
-        dateFormatter.timeStyle = NSDateFormatterStyle.MediumStyle //Set time style
-        dateFormatter.dateStyle = NSDateFormatterStyle.MediumStyle //Set date style
-        dateFormatter.timeZone = NSTimeZone(name: "EST")
-        let strDate = dateFormatter.stringFromDate(date)
-        return dateFormatter.dateFromString(strDate)!
+
+        print("date before:\(date)")
+        let formatter = DateFormatter()
+        formatter.timeZone = TimeZone.autoupdatingCurrent
+        formatter.locale =  Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss a"
+        let DateVal = formatter.string(from: date)
+        //print("date after:\(DateVal)")
+        //print("date after:\(strDate)")
+        return DateVal
+        
     }
     
     
-    func setButtonTitle(){
-        switch decidePicker {
-        case 1:
-            
-            bfOut.setTitle("\(dateFormatter(datePicker.date))", forState: .Normal)
-            break
-        case 2:
-            lunOut.setTitle("\(dateFormatter(datePicker.date))", forState: .Normal)
-            break
-        case 3:
-            dinOut.setTitle("\(dateFormatter(datePicker.date))", forState: .Normal)
-            break
-        case 4:
-            symOut.setTitle("\(dateFormatter(datePicker.date))", forState: .Normal)
-            break
-        case 5:
-            qolOut.setTitle("\(dateFormatter(datePicker.date))", forState: .Normal)
-            break
-        default:
-            break
-        }
+    func dateFormatterWoDate(_ date: Date)-> NSString{
+        
+        
+        print("date before:\(date)")
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss a"
+        let DateVal = formatter.string(from: date)
+        print("date after:\(DateVal)")
+      
+        return DateVal as NSString
+        
     }
+    
+    
+    
+ 
     
     func showCustomPicker(){
         
-        self.scrollView.frame = CGRectMake(0, self.scrollView.frame.origin.y, self.scrollView.frame.size.width, self.scrollView.frame.size.height-260);
-        self.frontView.userInteractionEnabled = false
-        self.datePicker.hidden = false
-        self.customToolbar.hidden = false
+        self.scrollView.frame = CGRect(x: 0, y: self.scrollView.frame.origin.y, width: self.scrollView.frame.size.width, height: self.scrollView.frame.size.height-260);
+        self.frontView.isUserInteractionEnabled = false
+        self.datePicker.isHidden = false
+        self.customToolbar.isHidden = false
         
     }
     
     func hideCustomPicker(){
         
-        self.scrollView.frame=CGRectMake(0, self.scrollView.frame.origin.y, self.scrollView.frame.size.width, self.scrollView.frame.size.height+260);
-        self.scrollView.contentSize=CGSizeMake(self.view.frame.size.width,1000);
-        self.frontView.userInteractionEnabled = true
-        self.datePicker.hidden = true
-        self.customToolbar.hidden = true
+        self.scrollView.frame=CGRect(x: 0, y: self.scrollView.frame.origin.y, width: self.scrollView.frame.size.width, height: self.scrollView.frame.size.height+260);
+        self.scrollView.contentSize=CGSize(width: self.view.frame.size.width,height: 1000);
+        self.frontView.isUserInteractionEnabled = true
+        self.datePicker.isHidden = true
+        self.customToolbar.isHidden = true
         
     }
     
     
     
-    func scheduleNotification(alert: String,date: NSDate ){
+    func scheduleNotification(_ alert: String,date: Date ,num: Int){
         print("date:\(date)")
         let localNotification = UILocalNotification()
         localNotification.fireDate = date
-        //localNotification.alertBody = alert
+        localNotification.repeatInterval = NSCalendar.Unit.day
+        localNotification.alertBody = alert
         localNotification.alertTitle = alert
-        localNotification.timeZone = NSTimeZone.defaultTimeZone()
-        localNotification.applicationIconBadgeNumber = UIApplication.sharedApplication().applicationIconBadgeNumber + 1
+        localNotification.userInfo = [alert:num]
+
+        localNotification.timeZone = TimeZone.current
+        localNotification.applicationIconBadgeNumber = UIApplication.shared.applicationIconBadgeNumber + 1
         
-        UIApplication.sharedApplication().scheduleLocalNotification(localNotification)
-        for notification in UIApplication.sharedApplication().scheduledLocalNotifications!{
+        UIApplication.shared.scheduleLocalNotification(localNotification)
+        for notification in UIApplication.shared.scheduledLocalNotifications!{
             print("notic:\(notification.alertBody)")
         }
+        
+      settitle()
+
     }
+    
+    
+    func settitle(){
+        switch decidePicker {
+        case 1:
+            UserDefaults.standard.setValue("\(dateFormatterWoDate(datePicker.date))", forKeyPath: "BfDate")
+            bfOut.setTitle("\(dateFormatterWoDate(datePicker.date))", for: UIControlState())
+            break
+        case 2:
+            
+             UserDefaults.standard.setValue("\(dateFormatterWoDate(datePicker.date))", forKeyPath: "LunDate")
+            lunOut.setTitle("\(dateFormatterWoDate(datePicker.date))", for: UIControlState())
+            break
+        case 3:
+             UserDefaults.standard.setValue("\(dateFormatterWoDate(datePicker.date))", forKeyPath: "DinDate")
+            dinOut.setTitle("\(dateFormatterWoDate(datePicker.date))", for: UIControlState())
+            break
+        case 4:
+              UserDefaults.standard.setValue("\(dateFormatter(datePicker.date))", forKeyPath: "SymDate")
+            symOut.setTitle("\(dateFormatter(datePicker.date))", for: UIControlState())
+            break
+        case 5:
+            UserDefaults.standard.setValue("\(dateFormatter(datePicker.date))", forKeyPath: "QolDate")
+
+            qolOut.setTitle("\(dateFormatter(datePicker.date))", for: UIControlState())
+            break
+        default:
+            break
+        }
+        
+    }
+    
+    func scheduleNotificationMonthly(_ alert: String,date: Date,num: Int ){
+        print("date:\(date)")
+        let localNotification = UILocalNotification()
+        localNotification.fireDate = date
+       // localNotification.repeatInterval = NSCalendarUnit.Month
+        localNotification.alertBody = alert
+        localNotification.alertTitle = alert
+        localNotification.userInfo = [alert:num]
+
+        localNotification.timeZone = TimeZone.current
+        localNotification.applicationIconBadgeNumber = UIApplication.shared.applicationIconBadgeNumber + 1
+        
+        UIApplication.shared.scheduleLocalNotification(localNotification)
+        for notification in UIApplication.shared.scheduledLocalNotifications!{
+            print("notic:\(notification)")
+        }
+       settitle()
+       
+    }
+
+    func scheduleNotificationWeekly(_ alert: String,date: Date,num: Int  ){
+        print("date:\(date)")
+        let localNotification = UILocalNotification()
+        localNotification.fireDate = date
+      //  localNotification.repeatInterval = NSCalendarUnit.WeekOfMonth
+        localNotification.alertBody = alert
+        localNotification.alertTitle = alert
+        localNotification.timeZone = TimeZone.current
+        localNotification.applicationIconBadgeNumber = UIApplication.shared.applicationIconBadgeNumber + 1
+        localNotification.userInfo = [alert:num]
+
+        UIApplication.shared.scheduleLocalNotification(localNotification)
+        for notification in UIApplication.shared.scheduledLocalNotifications!{
+            print("notic:\(notification.alertBody)")
+        }
+       settitle()
+    
+    }
+    
     
     /*
     // MARK: - Navigation

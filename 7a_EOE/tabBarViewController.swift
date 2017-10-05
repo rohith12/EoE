@@ -19,7 +19,7 @@ class tabBarViewController: UITabBarController {
         // Dispose of any resources that can be recreated.
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         self.tabBarController?.navigationItem.hidesBackButton = true
     }
     

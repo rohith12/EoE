@@ -8,15 +8,16 @@
 
 import UIKit
 
-class SettingsTableViewController: UITableViewController {
+class SettingsTableViewController: UITableViewController,CoreDataHelperDelegate {
 
     
     var tableArray = [String]()
-    
+    var coreData = CoreDataHelper()
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        tableArray = ["Reminders","User Treatment","About"]
+        tableArray = ["Reminders","User Treatment","About","Log Out"]
+        coreData.delegate = self
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
@@ -31,19 +32,19 @@ class SettingsTableViewController: UITableViewController {
 
     // MARK: - Table view data source
 
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
         return 1
     }
 
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return 3
+        return tableArray.count
     }
 
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath)
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
 
         cell.textLabel?.text = tableArray[indexPath.row]
         // Configure the cell...
@@ -51,17 +52,29 @@ class SettingsTableViewController: UITableViewController {
         return cell
     }
  
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         if indexPath.row == 0 {
-          performSegueWithIdentifier("reminders", sender: self)
+          performSegue(withIdentifier: "reminders", sender: self)
         }else if indexPath.row == 1{
-            performSegueWithIdentifier("treatment", sender: self)
+            performSegue(withIdentifier: "treatment", sender: self)
 
         }
-        else{
-            performSegueWithIdentifier("about", sender: self)
+        else if indexPath.row == 2{
+            performSegue(withIdentifier: "about", sender: self)
 
+        }else{
+            
+            coreData.deleteAllData("Food")
+            
+            
+            
+            UIApplication.shared.cancelAllLocalNotifications()
+            UserDefaults.standard.removeObject(forKey: "UserId")
+            let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
+            
+            let nextViewController = storyBoard.instantiateViewController(withIdentifier: "nextView") as! ViewController
+         self.navigationController?.pushViewController(nextViewController, animated: true)
         }
         
         
